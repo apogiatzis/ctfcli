@@ -67,7 +67,6 @@ def generate_session():
     # Load required configuration values
     url = config["config"]["url"]
     access_token = config["config"]["access_token"]
-
     # Handle SSL verification disabling
     try:
         # Get an ssl_verify config. Default to True if it doesn't exist
@@ -79,5 +78,8 @@ def generate_session():
 
     s = APISession(prefix_url=url)
     s.verify = ssl_verify
-    s.headers.update({"Authorization": f"Token {access_token}"})
+    s.headers.update({
+        "Authorization": f"Token {access_token}",
+        "Content-Type": "application/json"
+    })
     return s

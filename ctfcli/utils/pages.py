@@ -9,7 +9,7 @@ FORMATS = {
 
 def get_current_pages():
     s = generate_session()
-    return s.get("/api/v1/pages", json=True).json()["data"]
+    return s.get("/api/v1/pages").json()["data"]
 
 
 def get_existing_page(route, pageset=None):

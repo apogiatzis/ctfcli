@@ -91,7 +91,7 @@ def cloud(challenge, host, protocol):
 
     s = generate_session()
     # Detect whether we have the appropriate endpoints
-    check = s.get("/api/v1/images", json=True)
+    check = s.get("/api/v1/images")
     if check.ok is False:
         click.secho(
             "Target instance does not have deployment endpoints", fg="red",
@@ -99,7 +99,7 @@ def cloud(challenge, host, protocol):
         return False, None, None, None
 
     # Try to find an appropriate image.
-    images = s.get("/api/v1/images", json=True).json()["data"]
+    images = s.get("/api/v1/images").json()["data"]
     image = None
     for i in images:
         if i["location"].endswith(f"/{slug}"):
@@ -119,7 +119,7 @@ def cloud(challenge, host, protocol):
     push_image(image_name, location)
 
     # Look for existing service
-    services = s.get("/api/v1/services", json=True).json()["data"]
+    services = s.get("/api/v1/services").json()["data"]
     service = None
     for srv in services:
         if srv["name"] == slug:
@@ -128,7 +128,7 @@ def cloud(challenge, host, protocol):
             s.patch(
                 f"/api/v1/services/{service['id']}", json={"image": location}
             ).raise_for_status()
-            service = s.get(f"/api/v1/services/{service['id']}", json=True).json()[
+            service = s.get(f"/api/v1/services/{service['id']}").json()[
                 "data"
             ]
             break
@@ -141,14 +141,14 @@ def cloud(challenge, host, protocol):
 
     # Get connection details
     service_id = service["id"]
-    service = s.get(f"/api/v1/services/{service_id}", json=True).json()["data"]
+    service = s.get(f"/api/v1/services/{service_id}").json()["data"]
 
     DEPLOY_TIMEOUT = 180
     while service["hostname"] is None and DEPLOY_TIMEOUT > 0:
         click.secho(
             "Waiting for challenge hostname", fg="yellow",
         )
-        service = s.get(f"/api/v1/services/{service_id}", json=True).json()["data"]
+        service = s.get(f"/api/v1/services/{service_id}").json()["data"]
         DEPLOY_TIMEOUT -= 10
         time.sleep(10)
 
@@ -162,7 +162,7 @@ def cloud(challenge, host, protocol):
     if protocol == "tcp":
         service = s.patch(f"/api/v1/services/{service['id']}", json={"expose": True})
         service.raise_for_status()
-        service = s.get(f"/api/v1/services/{service_id}", json=True).json()["data"]
+        service = s.get(f"/api/v1/services/{service_id}").json()["data"]
 
     status = True
     domain = ""

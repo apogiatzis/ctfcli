@@ -26,12 +26,12 @@ def load_challenge(path):
 
 def load_installed_challenge(challenge_id):
     s = generate_session()
-    return s.get(f"/api/v1/challenges/{challenge_id}", json=True).json()["data"]
+    return s.get(f"/api/v1/challenges/{challenge_id}").json()["data"]
 
 
 def load_installed_challenges():
     s = generate_session()
-    return s.get("/api/v1/challenges?view=admin", json=True).json()["data"]
+    return s.get("/api/v1/challenges?view=admin").json()["data"]
 
 
 def sync_challenge(challenge, ignore=[]):
@@ -83,7 +83,7 @@ def sync_challenge(challenge, ignore=[]):
         for flag in current_flags:
             if flag["challenge_id"] == challenge_id:
                 flag_id = flag["id"]
-                r = s.delete(f"/api/v1/flags/{flag_id}", json=True)
+                r = s.delete(f"/api/v1/flags/{flag_id}")
                 r.raise_for_status()
         for flag in challenge["flags"]:
             if type(flag) == str:
@@ -104,7 +104,7 @@ def sync_challenge(challenge, ignore=[]):
         for topic in current_topics:
             topic_id = topic["id"]
             r = s.delete(
-                f"/api/v1/topics?type=challenge&target_id={topic_id}", json=True
+                f"/api/v1/topics?type=challenge&target_id={topic_id}"
             )
             r.raise_for_status()
         # Add new challenge topics
@@ -126,7 +126,7 @@ def sync_challenge(challenge, ignore=[]):
         for tag in current_tags:
             if tag["challenge_id"] == challenge_id:
                 tag_id = tag["id"]
-                r = s.delete(f"/api/v1/tags/{tag_id}", json=True)
+                r = s.delete(f"/api/v1/tags/{tag_id}")
                 r.raise_for_status()
         for tag in challenge["tags"]:
             r = s.post(
@@ -144,7 +144,7 @@ def sync_challenge(challenge, ignore=[]):
             for used_file in original_challenge["files"]:
                 if f["location"] in used_file:
                     file_id = f["id"]
-                    r = s.delete(f"/api/v1/files/{file_id}", json=True)
+                    r = s.delete(f"/api/v1/files/{file_id}")
                     r.raise_for_status()
         files = []
         for f in challenge["files"]:
@@ -168,7 +168,7 @@ def sync_challenge(challenge, ignore=[]):
         for hint in current_hints:
             if hint["challenge_id"] == challenge_id:
                 hint_id = hint["id"]
-                r = s.delete(f"/api/v1/hints/{hint_id}", json=True)
+                r = s.delete(f"/api/v1/hints/{hint_id}")
                 r.raise_for_status()
 
         for hint in challenge["hints"]:
