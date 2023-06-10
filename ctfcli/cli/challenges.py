@@ -154,7 +154,8 @@ class Challenge(object):
 
             click.secho(f"Found {path}")
             challenge = load_challenge(path)
-            click.secho(f'Loaded {challenge["name"]}', fg="yellow")
+            if challenge:
+                click.secho(f'Loaded {challenge["name"]}', fg="yellow")
 
             installed_challenges = load_installed_challenges()
             for c in installed_challenges:

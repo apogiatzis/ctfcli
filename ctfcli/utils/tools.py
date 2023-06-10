@@ -1,6 +1,5 @@
 import string
 
-
 def strings(filename, min=4):
     """
     Python implementation of strings

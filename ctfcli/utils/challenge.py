@@ -1,8 +1,11 @@
+import os
 from pathlib import Path
 import subprocess
 
 import click
 import yaml
+
+from ctfcli.utils.parse import get_yaml_loader
 
 from .config import generate_session
 from .tools import strings
@@ -18,7 +21,7 @@ class Yaml(dict):
 def load_challenge(path):
     try:
         with open(path) as f:
-            return Yaml(data=yaml.safe_load(f.read()), file_path=path)
+            return Yaml(data=yaml.load(f.read(), Loader=get_yaml_loader(base_dir=os.path.dirname(path))), file_path=path)
     except FileNotFoundError:
         click.secho(f"No challenge.yml was found in {path}", fg="red")
         return
@@ -30,8 +33,8 @@ def load_installed_challenge(challenge_id):
 
 
 def load_installed_challenges():
-    s = generate_session()
-    return s.get("/api/v1/challenges?view=admin").json()["data"]
+    with generate_session(headers={"Content-Type": "application/json"}) as s:
+        return s.get("/api/v1/challenges?view=admin").json()["data"]
 
 
 def sync_challenge(challenge, ignore=[]):

@@ -1,6 +1,7 @@
 import configparser
 import json
 import os
+from typing import Any, Dict
 
 from ctfcli import __file__ as base_path
 
@@ -39,7 +40,6 @@ def load_config():
 
     # Preserve case in configparser
     parser.optionxform = str
-
     parser.read(path)
     return parser
 
@@ -61,7 +61,7 @@ def preview_config(as_string=False):
         print(preview)
 
 
-def generate_session():
+def generate_session(headers: Dict[str, Any] = {}):
     config = load_config()
 
     # Load required configuration values
@@ -78,8 +78,10 @@ def generate_session():
 
     s = APISession(prefix_url=url)
     s.verify = ssl_verify
-    s.headers.update({
-        "Authorization": f"Token {access_token}",
-        "Content-Type": "application/json"
-    })
+    s.headers.update(
+        dict(
+            Authorization=f"Token {access_token}",
+            **headers,
+        )
+    )
     return s
