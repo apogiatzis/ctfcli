@@ -70,9 +70,8 @@ def sync_challenge(challenge, ignore=[]):
     else:
         return
 
-    s = generate_session()
-
-    original_challenge = s.get(f"/api/v1/challenges/{challenge_id}", json=data).json()[
+    s = generate_session(headers={"Content-Type": "application/json"})
+    original_challenge = s.get(f"/api/v1/challenges/{challenge_id}").json()[
         "data"
     ]
 
@@ -82,7 +81,7 @@ def sync_challenge(challenge, ignore=[]):
     # Create new flags
     if challenge.get("flags") and "flags" not in ignore:
         # Delete existing flags
-        current_flags = s.get("/api/v1/flags", json=data).json()["data"]
+        current_flags = s.get("/api/v1/flags").json()["data"]
         for flag in current_flags:
             if flag["challenge_id"] == challenge_id:
                 flag_id = flag["id"]
@@ -102,8 +101,7 @@ def sync_challenge(challenge, ignore=[]):
     if challenge.get("topics") and "topics" not in ignore:
         # Delete existing challenge topics
         current_topics = s.get(
-            f"/api/v1/challenges/{challenge_id}/topics", json=""
-        ).json()["data"]
+            f"/api/v1/challenges/{challenge_id}/topics").json()["data"]
         for topic in current_topics:
             topic_id = topic["id"]
             r = s.delete(
@@ -125,7 +123,7 @@ def sync_challenge(challenge, ignore=[]):
     # Update tags
     if challenge.get("tags") and "tags" not in ignore:
         # Delete existing tags
-        current_tags = s.get("/api/v1/tags", json=data).json()["data"]
+        current_tags = s.get("/api/v1/tags").json()["data"]
         for tag in current_tags:
             if tag["challenge_id"] == challenge_id:
                 tag_id = tag["id"]
@@ -140,7 +138,7 @@ def sync_challenge(challenge, ignore=[]):
     # Upload files
     if challenge.get("files") and "files" not in ignore:
         # Delete existing files
-        all_current_files = s.get("/api/v1/files?type=challenge", json=data).json()[
+        all_current_files = s.get("/api/v1/files?type=challenge").json()[
             "data"
         ]
         for f in all_current_files:
@@ -167,7 +165,7 @@ def sync_challenge(challenge, ignore=[]):
     # Create hints
     if challenge.get("hints") and "hints" not in ignore:
         # Delete existing hints
-        current_hints = s.get("/api/v1/hints", json=data).json()["data"]
+        current_hints = s.get("/api/v1/hints").json()["data"]
         for hint in current_hints:
             if hint["challenge_id"] == challenge_id:
                 hint_id = hint["id"]
