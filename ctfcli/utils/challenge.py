@@ -21,7 +21,12 @@ class Yaml(dict):
 def load_challenge(path):
     try:
         with open(path) as f:
-            return Yaml(data=yaml.load(f.read(), Loader=get_yaml_loader(base_dir=os.path.dirname(path))), file_path=path)
+            return Yaml(
+                data=yaml.load(
+                    f.read(), Loader=get_yaml_loader(base_dir=os.path.dirname(path))
+                ),
+                file_path=path,
+            )
     except FileNotFoundError:
         click.secho(f"No challenge.yml was found in {path}", fg="red")
         return
@@ -70,10 +75,11 @@ def sync_challenge(challenge, ignore=[]):
     else:
         return
 
-    s = generate_session(headers={"Content-Type": "application/json"})
-    original_challenge = s.get(f"/api/v1/challenges/{challenge_id}").json()[
-        "data"
-    ]
+    s = generate_session()
+    original_challenge = s.get(
+        f"/api/v1/challenges/{challenge_id}",
+        headers={"Content-Type": "application/json"},
+    ).json()["data"]
 
     r = s.patch(f"/api/v1/challenges/{challenge_id}", json=data)
     r.raise_for_status()
@@ -100,13 +106,12 @@ def sync_challenge(challenge, ignore=[]):
     # Update topics
     if challenge.get("topics") and "topics" not in ignore:
         # Delete existing challenge topics
-        current_topics = s.get(
-            f"/api/v1/challenges/{challenge_id}/topics").json()["data"]
+        current_topics = s.get(f"/api/v1/challenges/{challenge_id}/topics").json()[
+            "data"
+        ]
         for topic in current_topics:
             topic_id = topic["id"]
-            r = s.delete(
-                f"/api/v1/topics?type=challenge&target_id={topic_id}"
-            )
+            r = s.delete(f"/api/v1/topics?type=challenge&target_id={topic_id}")
             r.raise_for_status()
         # Add new challenge topics
         for topic in challenge["topics"]:
@@ -138,9 +143,7 @@ def sync_challenge(challenge, ignore=[]):
     # Upload files
     if challenge.get("files") and "files" not in ignore:
         # Delete existing files
-        all_current_files = s.get("/api/v1/files?type=challenge").json()[
-            "data"
-        ]
+        all_current_files = s.get("/api/v1/files?type=challenge").json()["data"]
         for f in all_current_files:
             for used_file in original_challenge["files"]:
                 if f["location"] in used_file:
@@ -161,6 +164,22 @@ def sync_challenge(challenge, ignore=[]):
         # Specifically use data= here instead of json= to send multipart/form-data
         r = s.post("/api/v1/files", files=files, data=data)
         r.raise_for_status()
+
+        # data = {"challenge_id": challenge_id, "type": "challenge"}
+        # # files.append(("challenge_id", challenge_id))
+        # # files.append(("type", "challenge"))
+        # # Specifically use data= here instead of json= to send multipart/form-data
+        # # s = generate_session()
+        # # import requests
+        # # r = requests.post(
+        # #     "https://ccsc.cybermouflons.com/api/v1/files",
+        # #     files=files,
+        # #     headers={"Authorization": "Token 99618cf500632d33a7af53e5bcd1b80846481e75a2ab70951994d8cbddbb27d7"}
+        # # )
+        # # print(r.content)
+        # r = s.post("/api/v1/files", files=files, data=data)
+        # print(r.content)
+        # r.raise_for_status()
 
     # Create hints
     if challenge.get("hints") and "hints" not in ignore:
