@@ -46,7 +46,7 @@ def sync_challenge(challenge, ignore=[]):
     data = {
         "name": challenge["name"],
         "category": challenge["category"],
-        "description": challenge["description"],
+        "description": challenge["description"] + "\n\nAuthor: " + challenge["author"],
         "type": challenge.get("type", "standard"),
         "value": int(challenge["value"]) if challenge["value"] else challenge["value"],
         **challenge.get("extra", {}),
@@ -236,7 +236,7 @@ def create_challenge(challenge, ignore=[]):
     data = {
         "name": challenge["name"],
         "category": challenge["category"],
-        "description": challenge["description"],
+        "description": challenge["description"] + "\n\nAuthor: " + challenge["author"],
         "type": challenge.get("type", "standard"),
         "value": int(challenge["value"]) if challenge["value"] else challenge["value"],
         **challenge.get("extra", {}),
